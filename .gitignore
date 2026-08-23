@@ -1,0 +1,11 @@
+.env.local
+.env*.local
+node_modules/
+.next/
+site/.next-preview/
+
+# Claude Code session tooling — not part of the site itself
+.claude/
+.agents/
+.mcp.json
+skills-lock.json

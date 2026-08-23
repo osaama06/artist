@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/*
+  نظام الألوان المعتمد: "ليالي الدرعية"
+  هوية داكنة دافئة ثابتة — لا تتغيّر مع وضع الجهاز (فاتح/داكن)،
+  لأنها هوية بصرية مقصودة (صالة عرض ليلية) وليست واجهة تطبيق عادية.
+*/
+:root {
+  --color-bg: #1c1512;      /* عتمة — الخلفية الرئيسية */
+  --color-surface: #241c17; /* سطح — البطاقات والأقسام */
+  --color-ink: #f3eae0;     /* نص فاتح — النص الأساسي */
+  --color-gold: #c89b3c;    /* ذهبي — تمييز أساسي */
+  --color-clay: #8c4a3a;    /* طيني وردي — تمييز ثانوي */
+  --color-muted: #9c8c7e;   /* محايد خافت — نص ثانوي */
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-gold: var(--color-gold);
+  --color-clay: var(--color-clay);
+  --color-muted: var(--color-muted);
+
+  --font-display: var(--font-amiri), serif;
+  --font-body: var(--font-tajawal), sans-serif;
+  --font-label: var(--font-cairo), sans-serif;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+/* Signature interaction: warm spotlight that follows the cursor over the
+   featured artwork (see components/SpotlightImage.js). */
+.spotlight-frame {
+  --spot-x: 50%;
+  --spot-y: 50%;
+}
+
+.spotlight-glow {
+  opacity: 0;
+  background: radial-gradient(
+    circle 320px at var(--spot-x) var(--spot-y),
+    rgba(200, 155, 60, 0.28),
+    transparent 70%
+  );
+  transition: opacity 0.4s ease;
+}
+
+.spotlight-frame:hover .spotlight-glow {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-glow {
+    display: none;
+  }
+}
