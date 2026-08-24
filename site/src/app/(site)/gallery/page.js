@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { getArtworks, getArtworkCategories } from "@/lib/data";
 import ArtworkCard from "@/components/ArtworkCard";
-import CategoryFilterNav from "@/components/CategoryFilterNav";
-import { SkeletonArtworkCard, SkeletonBox } from "@/components/Skeleton";
+import GalleryInteractive from "@/components/GalleryInteractive";
+import { SkeletonArtworkCard } from "@/components/Skeleton";
 
 export const metadata = {
   title: "المعرض | ليالي الدرعية",
@@ -13,15 +13,9 @@ export const metadata = {
   },
 };
 
-// Two independent Suspense boundaries, not one shared boundary:
-// - Chips: no `key`, so React keeps them mounted across filter clicks —
-//   they never re-flash to a skeleton, and the active highlight updates
-//   instantly client-side (see CategoryFilterNav) regardless of how long
-//   the grid query takes.
-// - Grid: `key={category}` deliberately forces a fresh subtree per filter,
-//   so it *does* show a skeleton — that's the one thing actually loading.
 export default async function GalleryPage({ searchParams }) {
   const { category } = await searchParams;
+  const categories = await getArtworkCategories();
 
   return (
     <main className="flex-1">
@@ -32,23 +26,16 @@ export default async function GalleryPage({ searchParams }) {
         <h1 className="font-display text-3xl md:text-4xl">أعمال فنية</h1>
       </section>
 
-      <Suspense fallback={<ChipsSkeleton />}>
-        <CategoryChips />
-      </Suspense>
-
-      <section className="mx-auto max-w-6xl px-6 pb-24">
+      <GalleryInteractive categories={categories}>
+        {/* Still Suspense-wrapped for the non-JS / first-load path — but
+            the instant loading feedback on filter clicks comes from
+            GalleryInteractive's own isPending state, not this boundary. */}
         <Suspense key={category ?? "all"} fallback={<GridSkeleton />}>
           <ArtworkGrid category={category} />
         </Suspense>
-      </section>
+      </GalleryInteractive>
     </main>
   );
-}
-
-async function CategoryChips() {
-  const categories = await getArtworkCategories();
-  if (categories.length === 0) return null;
-  return <CategoryFilterNav categories={categories} />;
 }
 
 async function ArtworkGrid({ category }) {
@@ -66,16 +53,6 @@ async function ArtworkGrid({ category }) {
     <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
       {artworks.map((artwork) => (
         <ArtworkCard key={artwork.id} artwork={artwork} />
-      ))}
-    </div>
-  );
-}
-
-function ChipsSkeleton() {
-  return (
-    <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-3 px-6 pb-10">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <SkeletonBox key={i} className="h-9 w-20 rounded-full" />
       ))}
     </div>
   );
