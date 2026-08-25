@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { getArtworkBySlug } from "@/lib/data";
 import { formatPrice } from "@/lib/format";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 import ArtworkImage from "@/components/ArtworkImage";
-import InquiryForm from "@/components/InquiryForm";
 
 const STATUS_STYLES = {
   متوفر: "text-gold border-gold/40",
@@ -11,6 +11,13 @@ const STATUS_STYLES = {
 };
 
 const URL_ENDPOINT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+function buildWhatsAppLink(artwork) {
+  const artworkUrl = `${SITE_URL}/gallery/${artwork.slug}`;
+  const message = `أستفسر عن هذا العمل الفني: ${artwork.title}\n${artworkUrl}`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -86,14 +93,14 @@ export default async function ArtworkPage({ params }) {
           )}
 
           {canRequest ? (
-            <details className="group">
-              <summary className="inline-block cursor-pointer list-none border border-gold px-6 py-3.5 font-label text-xs tracking-[0.15em] text-gold transition-colors hover:bg-gold hover:text-bg">
-                اطلب هذا العمل
-              </summary>
-              <div className="mt-6">
-                <InquiryForm artworkId={artwork.id} artworkTitle={artwork.title} />
-              </div>
-            </details>
+            <a
+              href={buildWhatsAppLink(artwork)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block border border-gold px-6 py-3.5 font-label text-xs tracking-[0.15em] text-gold transition-colors hover:bg-gold hover:text-bg"
+            >
+              اشتري هذا العمل
+            </a>
           ) : (
             <p className="font-label text-xs tracking-[0.1em] text-muted">
               هذا العمل غير متاح للطلب حاليًا.
